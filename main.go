@@ -11,10 +11,10 @@ import (
 	"time"
 
 	"github.com/caarlos0/env"
-	"github.com/scottcrawford03/grpc-service.felix/internal/config"
-	"github.com/scottcrawford03/grpc-service.felix/internal/handler"
-
 	"go.uber.org/zap"
+
+	"github.com/{{.Org}}/{{.Proj}}/internal/config"
+	"github.com/{{.Org}}/{{.Proj}}/internal/handler"
 )
 
 // Secrets

@@ -6,7 +6,7 @@ import (
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
 
-	"github.com/scottcrawford03/grpc-service.felix/internal/config"
+	"github.com/{{.Org}}/{{.Proj}}/internal/config"
 )
 
 // Handler is the struct to track dependencies of the Vendor Portal Service routes.

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 module github.com/scottcrawford03/grpc-service.felix
+=======
+module github.com/{{.Org}}/{{.Proj}}
+>>>>>>> master
 
 go 1.12
 
