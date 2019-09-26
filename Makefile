@@ -1,4 +1,4 @@
-.PHONY: all build install lint race run test
+.PHONY: all build install lint race run test vendor
 
 all: build test
 
@@ -21,3 +21,7 @@ run:
 
 test:
 	go test -cover ./...
+
+vendor:
+	go mod tidy
+	go mod vendor
