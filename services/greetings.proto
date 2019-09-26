@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package services;
 
-import "models/greetings.proto";
+import "github.com/scottcrawford03/grpc-service.felix/models/greetings.proto";
 
 message GreetReq{
   models.Greeting request = 1;

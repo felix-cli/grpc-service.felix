@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/caarlos0/env"
-	"github.com/update/update_me/internal/config"
-	"github.com/update/update_me/internal/handler"
+	"github.com/scottcrawford03/grpc-service.felix/internal/config"
+	"github.com/scottcrawford03/grpc-service.felix/internal/handler"
 
 	"go.uber.org/zap"
 )
