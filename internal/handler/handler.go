@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/update/update_me/internal/config"
+	"github.com/{{.Org}}/{{.Proj}}/internal/config"
 	"go.uber.org/zap"
 )
 

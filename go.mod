@@ -1,4 +1,4 @@
-module github.com/update/update_me
+module github.com/{{.Org}}/{{.Proj}}
 
 go 1.12
 
