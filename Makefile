@@ -1,10 +1,12 @@
-.PHONY: all build install lint race run test vendor
+.PHONY: all build install lint proto race run test vendor
 
 all: build test
 
+PROTO_PACKAGES := models/*.proto services/*.proto
+
 # Build
 
-build:
+build: proto
 	go build ./...
 
 install:
@@ -12,6 +14,16 @@ install:
 
 lint:
 	golint ./...
+
+proto:
+	$(foreach package,$(PROTO_PACKAGES), \
+		protoc -I/usr/local/include -I. \
+		-I${GOPATH}/src \
+		-I${GOPATH}/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
+		--go_out=plugins=grpc:. \
+		--grpc-gateway_out=logtostderr=true:. \
+		--swagger_out=logtostderr=true:. \
+		$(package);)
 
 race:
 	go test -race ./...
