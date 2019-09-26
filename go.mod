@@ -1,4 +1,4 @@
-module github.com/{{.Org}}/{{.Proj}}
+module github.com/"{{.Org}}"/"{{.Proj}}"
 
 go 1.12
 
