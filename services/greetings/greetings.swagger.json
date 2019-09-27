@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "services/greetings.proto",
+    "title": "services/greetings/greetings.proto",
     "version": "version not set"
   },
   "schemes": [
@@ -16,19 +16,19 @@
   ],
   "paths": {},
   "definitions": {
-    "modelsGreeting": {
+    "greetingsGreetResp": {
+      "type": "object",
+      "properties": {
+        "response": {
+          "$ref": "#/definitions/greetingsGreeting"
+        }
+      }
+    },
+    "greetingsGreeting": {
       "type": "object",
       "properties": {
         "msg": {
           "type": "string"
-        }
-      }
-    },
-    "servicesGreetResp": {
-      "type": "object",
-      "properties": {
-        "response": {
-          "$ref": "#/definitions/modelsGreeting"
         }
       }
     }

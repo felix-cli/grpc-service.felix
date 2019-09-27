@@ -13,4 +13,5 @@ require (
 	go.uber.org/multierr v1.1.0 // indirect
 	go.uber.org/zap v1.10.0
 	golang.org/x/lint v0.0.0-20190909230951-414d861bb4ac
+	google.golang.org/grpc v1.19.0
 )

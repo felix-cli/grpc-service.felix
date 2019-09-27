@@ -2,7 +2,7 @@
 
 all: build test
 
-PROTO_PACKAGES := models/*.proto services/*.proto
+PROTO_PACKAGES := services/*/*.proto
 
 # Build
 
