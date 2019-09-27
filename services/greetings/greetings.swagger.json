@@ -1,0 +1,36 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "services/greetings/greetings.proto",
+    "version": "version not set"
+  },
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {},
+  "definitions": {
+    "greetingsGreetResp": {
+      "type": "object",
+      "properties": {
+        "response": {
+          "$ref": "#/definitions/greetingsGreeting"
+        }
+      }
+    },
+    "greetingsGreeting": {
+      "type": "object",
+      "properties": {
+        "msg": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
