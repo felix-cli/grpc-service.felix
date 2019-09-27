@@ -8,19 +8,26 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"time"
-
-	"github.com/caarlos0/env"
-	"go.uber.org/zap"
 
 	"github.com/{{.Org}}/{{.Proj}}/internal/config"
-	"github.com/{{.Org}}/{{.Proj}}/internal/handler"
+	"github.com/{{.Org}}/{{.Proj}}/server"
+	"github.com/{{.Org}}/{{.Proj}}/services/greetings"
+
+	"github.com/caarlos0/env"
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+
+	"go.uber.org/zap"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
-// Secrets
-var ()
-
 func main() {
+	cfg := config.New()
+	if err := env.Parse(cfg); err != nil {
+		msg := fmt.Sprintf("Error parsing config from environment: %s", err.Error())
+		log.Fatalf(msg)
+	}
+
 	logger, err := zap.NewProduction()
 	if err != nil {
 		msg := fmt.Sprintf("Can't initialize zap logger Error: %s", err.Error())
@@ -34,47 +41,67 @@ func main() {
 	}()
 	sugar := logger.Sugar()
 
-	cfg := config.New()
-	if err := env.Parse(cfg); err != nil {
-		sugar.Fatalf("parsing config from environment: %s", err.Error())
+	// create a listener on TCP port 8080
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", 8080))
+	if err != nil {
+		sugar.Fatalf("Failed to listen: %v", err)
 	}
 
-	handler := handler.New(sugar, cfg)
-	addr := net.JoinHostPort(cfg.Host, cfg.Port)
+	// create a gRPC server object
+	grpcServer := grpc.NewServer()
 
-	server := &http.Server{
-		Handler:        handler,
-		Addr:           addr,
-		ReadTimeout:    10 * time.Second,
-		WriteTimeout:   10 * time.Second,
-		MaxHeaderBytes: 1 << 20,
+	// create a server instance
+	s := server.Server{
+		Log: sugar,
+		Cfg: cfg,
 	}
 
-	sugar.Info("starting web server")
+	greetings.RegisterGreeterServiceServer(grpcServer, &s)
+
+	// Register reflection service on gRPC server.
+	reflection.Register(grpcServer)
+
+	sugar.Info("Starting gRPC server on port 8080")
 
 	go func() {
-		if err := server.ListenAndServe(); err != nil {
-			if err != http.ErrServerClosed {
-				sugar.Fatalf("web server shutdown unexpectedly: %s", err.Error())
-			}
-
-			sugar.Errorf("web server shutdown: %s", err.Error())
+		// start the server
+		if err := grpcServer.Serve(lis); err != nil {
+			msg := fmt.Sprintf("Failed to serve (Error: %s)", err.Error())
+			sugar.Fatalf(msg)
 		}
 	}()
 
-	stop := make(chan os.Signal, 1)
-	signal.Notify(stop, os.Interrupt)
-
-	<-stop
-
-	sugar.Info("stopping web server")
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	if err := server.Shutdown(ctx); err != nil {
-		sugar.Fatalf("stopping web server: %s", err.Error())
+	sugar.Info("Starting http server on port 8000")
+	if err := runHTTPServer(); err != nil {
+		sugar.Fatal(err)
 	}
 
-	sugar.Info("web server shutdown complete")
+	c := make(chan os.Signal, 1)
+	// We'll accept graceful shutdowns when quit via SIGINT (Ctrl+C)
+	// SIGKILL, SIGQUIT or SIGTERM (Ctrl+/) will not be caught.
+	signal.Notify(c, os.Interrupt)
+
+	// Block until we receive our signal.
+	<-c
+
+	sugar.Info("Gracefully stopping gRPC server")
+	grpcServer.GracefulStop()
+
+	sugar.Info("Shutting down")
+	os.Exit(0)
+}
+
+func runHTTPServer() error {
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	mux := runtime.NewServeMux()
+	opts := []grpc.DialOption{grpc.WithInsecure()}
+	err := greetings.RegisterGreeterServiceHandlerFromEndpoint(ctx, mux, "localhost:8080", opts)
+	if err != nil {
+		return err
+	}
+
+	return http.ListenAndServe(":8000", mux)
 }
